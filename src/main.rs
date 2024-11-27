@@ -10,5 +10,14 @@ async fn main() {
     utils::init_tracing();
 
     // Initialize database pool
-    let db_pool = db::init_db().await.expect("Failed to initialize database");
+    let db_pool = match db::init_db().await {
+        Ok(db) => {
+            println!("Connected to database!");
+            db
+        }
+        Err(error) => {
+            eprintln!("Failed to initialize database: {error}");
+            return;
+        }
+    };
 }
