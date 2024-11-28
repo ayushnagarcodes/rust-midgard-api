@@ -17,7 +17,6 @@ CREATE TABLE rune_pool_history (
   id SERIAL PRIMARY KEY,
   start_time TIMESTAMPTZ NOT NULL,
   end_time TIMESTAMPTZ NOT NULL,
-  depth BIGINT NOT NULL,
   count BIGINT NOT NULL,
   units BIGINT NOT NULL
 );

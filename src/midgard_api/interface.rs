@@ -33,6 +33,9 @@ impl Interface {
             .append_pair("from", &self.params.from.timestamp().to_string())
             .append_pair("to", &self.params.to.timestamp().to_string());
 
+        let full_url = url.to_string();
+        println!("Full URL: {}", full_url);
+
         // Fetch data
         let resp: Value = reqwest::get(url).await?.json().await?;
 
