@@ -14,9 +14,6 @@ pub struct RunePoolHistory {
     pub end_time: DateTime<Utc>,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub depth: i64,
-
-    #[serde_as(as = "DisplayFromStr")]
     pub count: i64,
 
     #[serde_as(as = "DisplayFromStr")]

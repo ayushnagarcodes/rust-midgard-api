@@ -32,6 +32,7 @@ pub struct EarningsHistory {
     pub avg_node_count: f64,
 
     #[serde_as(as = "DisplayFromStr")]
+    #[serde(rename = "runePriceUSD")]
     pub rune_price_usd: f64,
 
     pub pools: Vec<PoolEarnings>,

@@ -126,5 +126,6 @@ pub struct SwapsHistory {
     pub average_slip: f64,
 
     #[serde_as(as = "DisplayFromStr")]
+    #[serde(rename = "runePriceUSD")]
     pub rune_price_usd: f64,
 }
