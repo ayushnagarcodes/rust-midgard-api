@@ -1,11 +1,10 @@
 use crate::models::{DepthPriceHistory, EarningsHistory, RunePoolHistory, SwapsHistory};
-use sqlx::Error;
-use sqlx::{Pool, Postgres};
+use sqlx::PgPool;
 
 pub async fn insert_depth_price_history(
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     data: &Vec<DepthPriceHistory>,
-) -> Result<(), Error> {
+) -> Result<(), sqlx::Error> {
     println!("Inserting depth price history...\n");
     for item in data {
         sqlx::query(
@@ -31,9 +30,9 @@ pub async fn insert_depth_price_history(
 }
 
 pub async fn insert_earnings_history(
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     data: &Vec<EarningsHistory>,
-) -> Result<(), Error> {
+) -> Result<(), sqlx::Error> {
     println!("Inserting earnings history...\n");
     for item in data {
         let earnings_history_id: (i32,) = sqlx::query_as(
@@ -73,9 +72,9 @@ pub async fn insert_earnings_history(
 }
 
 pub async fn insert_rune_pool_history(
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     data: &Vec<RunePoolHistory>,
-) -> Result<(), Error> {
+) -> Result<(), sqlx::Error> {
     println!("Inserting rune pool history...\n");
     for item in data {
         sqlx::query(
@@ -93,9 +92,9 @@ pub async fn insert_rune_pool_history(
 }
 
 pub async fn insert_swaps_history(
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     data: &Vec<SwapsHistory>,
-) -> Result<(), Error> {
+) -> Result<(), sqlx::Error> {
     println!("Inserting swaps history...\n");
     for item in data {
         sqlx::query(
