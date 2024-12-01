@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, TimestampSeconds};
-use sqlx::FromRow;
+use sqlx::{types::BigDecimal, FromRow};
 
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize, FromRow)]
@@ -105,27 +105,27 @@ pub struct SwapsHistory {
     pub total_fees: i64,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub to_asset_average_slip: f64,
+    pub to_asset_average_slip: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub to_rune_average_slip: f64,
+    pub to_rune_average_slip: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub to_trade_average_slip: f64,
+    pub to_trade_average_slip: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub from_trade_average_slip: f64,
+    pub from_trade_average_slip: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub synth_mint_average_slip: f64,
+    pub synth_mint_average_slip: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub synth_redeem_average_slip: f64,
+    pub synth_redeem_average_slip: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub average_slip: f64,
+    pub average_slip: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
     #[serde(rename = "runePriceUSD")]
-    pub rune_price_usd: f64,
+    pub rune_price_usd: BigDecimal,
 }

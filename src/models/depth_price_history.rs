@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, TimestampSeconds};
-use sqlx::FromRow;
+use sqlx::{types::BigDecimal, FromRow};
 
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize, FromRow)]
@@ -20,11 +20,11 @@ pub struct DepthPriceHistory {
     pub rune_depth: i64,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub asset_price: f64,
+    pub asset_price: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
     #[serde(rename = "assetPriceUSD")]
-    pub asset_price_usd: f64,
+    pub asset_price_usd: BigDecimal,
 
     #[serde_as(as = "DisplayFromStr")]
     pub liquidity_units: i64,
@@ -42,5 +42,5 @@ pub struct DepthPriceHistory {
     pub units: i64,
 
     #[serde_as(as = "DisplayFromStr")]
-    pub luvi: f64,
+    pub luvi: BigDecimal,
 }
