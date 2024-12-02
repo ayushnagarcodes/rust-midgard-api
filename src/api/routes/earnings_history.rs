@@ -84,15 +84,15 @@ pub async fn get_earnings_history(
         }
 
         if start_date.is_some() || end_date.is_some() {
-            query.push_str(" WHERE ");
+            query.push_str(" HAVING ");
             if let Some(start) = start_date {
-                query.push_str(&format!("start_time >= {}", start));
+                query.push_str(&format!("start_time >= '{}'", start.to_rfc3339()));
             }
             if let Some(end) = end_date {
                 if start_date.is_some() {
                     query.push_str(" AND ");
                 }
-                query.push_str(&format!("end_time <= {}", end));
+                query.push_str(&format!("end_time <= '{}'", end.to_rfc3339()));
             }
         }
     }
