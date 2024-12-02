@@ -7,9 +7,10 @@ use axum::{
 use reqwest::StatusCode;
 use serde_json::Value;
 use sqlx::{PgPool, Row};
+use std::sync::Arc;
 
 pub async fn get_earnings_history(
-    State(db_pool): State<PgPool>,
+    State(db_pool): State<Arc<PgPool>>,
     Query(params): Query<ApiParams>,
 ) -> Result<Json<Vec<ApiEarningsHistory>>, (StatusCode, String)> {
     let mut query = String::new();
@@ -122,7 +123,7 @@ pub async fn get_earnings_history(
 
     // Fetch
     let rows = sqlx::query(&query)
-        .fetch_all(&db_pool)
+        .fetch_all(&*db_pool)
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 

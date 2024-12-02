@@ -24,7 +24,7 @@ pub enum InterfaceError {
 pub struct Params {
     pub interval: String,
     pub from: DateTime<Utc>,
-    pub to: DateTime<Utc>,
+    pub count: u16,
 }
 
 pub struct Interface {
@@ -75,7 +75,7 @@ impl Interface {
         url.query_pairs_mut()
             .append_pair("interval", &self.params.interval)
             .append_pair("from", &self.params.from.timestamp().to_string())
-            .append_pair("to", &self.params.to.timestamp().to_string());
+            .append_pair("count", &self.params.count.to_string());
 
         Ok(url)
     }

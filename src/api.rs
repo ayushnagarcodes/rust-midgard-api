@@ -7,6 +7,7 @@ use axum::{
 };
 use reqwest::StatusCode;
 use sqlx::{FromRow, PgPool, Postgres, QueryBuilder};
+use std::sync::Arc;
 
 #[derive(serde::Deserialize)]
 pub struct ApiParams {
@@ -19,7 +20,7 @@ pub struct ApiParams {
 }
 
 pub async fn get_history<T>(
-    State(db_pool): State<PgPool>,
+    State(db_pool): State<Arc<PgPool>>,
     Query(params): Query<ApiParams>,
     table: &str,
 ) -> Result<Json<Vec<T>>, (StatusCode, String)>
@@ -112,7 +113,7 @@ where
     let sql = query.build_query_as::<T>();
 
     let records = sql
-        .fetch_all(&db_pool)
+        .fetch_all(&*db_pool)
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 

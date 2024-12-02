@@ -1,29 +1,41 @@
-use crate::db::insertions;
+use crate::db::insertions::{self, get_last_end_time};
 use crate::midgard_api::{self, handlers};
-use crate::utils::truncate_to_hour;
-use chrono::Duration;
+use crate::utils::get_truncated_now;
+use chrono::{DateTime, Duration, Utc};
 use sqlx::PgPool;
 
-pub fn midgard_params(iteration: i64) -> midgard_api::Params {
+fn midgard_params(start_time: DateTime<Utc>) -> midgard_api::Params {
     midgard_api::Params {
         interval: "hour".to_string(),
-        from: truncate_to_hour() - Duration::days(16 * iteration),
-        to: truncate_to_hour() - Duration::days(16 * (iteration - 1)),
+        from: start_time,
+        count: 400,
     }
 }
 
 pub async fn populate_db(db_pool: &PgPool) {
-    println!("Populating database...");
-    let total_iteration: i64 = 5;
-    let mut current_iteration: i64 = 1;
+    println!("\nPopulating database...");
 
-    while current_iteration <= total_iteration {
-        let params = midgard_params(total_iteration - current_iteration + 1);
+    // Calculate last timestamp in database
+    let default_start_time: DateTime<Utc> = get_truncated_now() - Duration::days(90);
+    let mut last_end_time = match get_last_end_time(db_pool, "depth_price_history").await {
+        Ok(time) => time.unwrap_or(default_start_time),
+        Err(error) => {
+            eprintln!("Failed to get last end time | {error}");
+            default_start_time
+        }
+    };
+    let mut current_iteration: u8 = 1;
+
+    // Perform fetch and insert operations until last_end_time is within the last hour
+    while last_end_time <= get_truncated_now() - Duration::hours(1) {
+        let params = midgard_params(last_end_time);
+
         println!(
-            "\n\n------------Iteration: {} | From: {} | To: {}------------\n",
-            current_iteration, &params.from, &params.to
+            "\n\n------------Iteration: {} | From: {}------------\n",
+            current_iteration, &params.from
         );
 
+        // Fetch and insert depth price history
         let depth_price_history = match handlers::fetch_depth_price_history(params.clone()).await {
             Ok(data) => data,
             Err(error) => {
@@ -39,6 +51,7 @@ pub async fn populate_db(db_pool: &PgPool) {
             }
         };
 
+        // Fetch and insert earnings history
         let earnings_history = match handlers::fetch_earnings_history(params.clone()).await {
             Ok(data) => data,
             Err(error) => {
@@ -54,6 +67,7 @@ pub async fn populate_db(db_pool: &PgPool) {
             }
         };
 
+        // Fetch and insert rune pool history
         let rune_pool_history = match handlers::fetch_rune_pool_history(params.clone()).await {
             Ok(data) => data,
             Err(error) => {
@@ -69,6 +83,7 @@ pub async fn populate_db(db_pool: &PgPool) {
             }
         };
 
+        // Fetch and insert swaps history
         let swaps_history = match handlers::fetch_swaps_history(params.clone()).await {
             Ok(data) => data,
             Err(error) => {
@@ -83,6 +98,14 @@ pub async fn populate_db(db_pool: &PgPool) {
             }
         };
 
+        // Update last_end_time
+        last_end_time = match get_last_end_time(db_pool, "depth_price_history").await {
+            Ok(time) => time.unwrap_or(default_start_time),
+            Err(error) => {
+                eprintln!("Failed to get last end time | {error}");
+                return;
+            }
+        };
         current_iteration += 1;
     }
 }

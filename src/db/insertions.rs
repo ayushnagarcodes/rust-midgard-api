@@ -1,5 +1,17 @@
 use crate::models::{DepthPriceHistory, EarningsHistory, RunePoolHistory, SwapsHistory};
+use chrono::{DateTime, Utc};
 use sqlx::PgPool;
+
+pub async fn get_last_end_time(
+    pool: &PgPool,
+    table: &str,
+) -> Result<Option<DateTime<Utc>>, sqlx::Error> {
+    let last_end_time: Option<DateTime<Utc>> =
+        sqlx::query_scalar(&format!("SELECT max(end_time) FROM {}", table))
+            .fetch_optional(pool)
+            .await?;
+    Ok(last_end_time)
+}
 
 pub async fn insert_depth_price_history(
     pool: &PgPool,

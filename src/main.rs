@@ -4,7 +4,8 @@ use api::routes::{
 use axum::{routing::get, Router};
 use db::init_db;
 use dotenv::dotenv;
-use std::env;
+// use populate_db::populate_db;
+use std::{env, sync::Arc};
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 
@@ -13,6 +14,7 @@ mod db;
 mod midgard_api;
 mod models;
 mod populate_db;
+mod scheduler;
 mod utils;
 
 #[tokio::main]
@@ -24,7 +26,7 @@ async fn main() {
     let db_pool = match init_db().await {
         Ok(db) => {
             println!("\nConnected to database!\n");
-            db
+            Arc::new(db)
         }
         Err(error) => {
             eprintln!("Failed to initialize database | {error}");
@@ -33,7 +35,14 @@ async fn main() {
     };
 
     // Fetch data from Midgard API and insert into database
+    // For initial population of the database
     // populate_db(&db_pool).await;
+
+    // Start scheduler
+    let scheduler_pool = Arc::clone(&db_pool);
+    tokio::spawn(async move {
+        scheduler::start_scheduler(scheduler_pool).await;
+    });
 
     // Start server
     let app = Router::new()
@@ -41,7 +50,7 @@ async fn main() {
         .route("/history/earnings", get(get_earnings_history))
         .route("/history/rune-pool", get(get_rune_pool_history))
         .route("/history/swaps", get(get_swaps_history))
-        .with_state(db_pool.clone())
+        .with_state(Arc::clone(&db_pool))
         .layer(tower_http::catch_panic::CatchPanicLayer::new())
         .layer(TraceLayer::new_for_http());
 

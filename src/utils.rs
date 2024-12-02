@@ -7,13 +7,13 @@ use tracing_subscriber::util::SubscriberInitExt;
 
 pub fn init_tracing() {
     let subscriber = tracing_subscriber::registry()
-        .with(LevelFilter::from_level(Level::TRACE))
+        .with(LevelFilter::from_level(Level::INFO))
         .with(fmt::Layer::default());
 
     subscriber.init();
 }
 
-pub fn truncate_to_hour() -> chrono::DateTime<Utc> {
+pub fn get_truncated_now() -> chrono::DateTime<Utc> {
     let now = Utc::now();
 
     now.date_naive()
